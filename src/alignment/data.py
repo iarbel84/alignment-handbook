@@ -13,10 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import os
-from typing import List, Literal, Optional
+from typing import List, Literal, Optional, Union
 
-from datasets import DatasetDict, concatenate_datasets, load_dataset, load_from_disk
+from datasets import Dataset, DatasetDict, concatenate_datasets, load_dataset, load_from_disk
 from datasets.builder import DatasetGenerationError
+from transformers import PreTrainedTokenizer
 
 from .configs import DataArguments
 
@@ -28,15 +29,22 @@ def apply_chat_template(
     example,
     tokenizer,
     task: Literal["sft", "generation", "rm", "dpo"],
+    ignore_system_message: bool = False,
 ):
     if task in ["sft", "generation"]:
         messages = example["messages"]
         # We add an empty system message if there is none
         if messages[0]["role"] != "system":
             messages.insert(0, {"role": "system", "content": ""})
-        example["text"] = tokenizer.apply_chat_template(
-            messages, tokenize=False, add_generation_prompt=True if task == "generation" else False
-        )
+        # Some chat templates (Mistral) do not use system messages
+        if ignore_system_message:
+            example["text"] = tokenizer.apply_chat_template(
+                messages[1:], tokenize=False, add_generation_prompt=False
+            )
+        else:
+            example["text"] = tokenizer.apply_chat_template(
+                messages, tokenize=False, add_generation_prompt=False
+            )
     elif task == "rm":
         if all(k in example.keys() for k in ("chosen", "rejected")):
             chosen_messages = example["chosen"]

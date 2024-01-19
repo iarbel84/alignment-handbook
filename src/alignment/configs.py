@@ -204,6 +204,21 @@ class DataArguments:
     truncation_side: Optional[str] = field(
         default=None, metadata={"help": "Truncation side to use for the tokenizer."}
     )
+    wandb_project: Optional[str] = field(
+        default=None, metadata={"help": "Project in Wandb console to report to."}
+    )
+    pad_token_id: Optional[int] = field(
+        default=None,
+        metadata={"help": ("In case `pad_token_id == None`, whether to set a pad token that is different than eos token.")},
+    )    
+    force_pad_token: Optional[bool] = field(
+        default=False,
+        metadata={"help": ("Whether to force pad_token_id = eos_token_id when using `DataCollatorForLanguageModeling`. If set to `True`, this can lead to a model that generates indefinately.")},
+    )
+    packing: Optional[bool] = field(
+        default=True,
+        metadata={"help": ("Whether to pack the sequences of the dataset using `ConstantLengthDataset`.")},
+    )
 
 
 @dataclass
@@ -220,7 +235,13 @@ class SFTConfig(transformers.TrainingArguments):
         default=True,
         metadata={"help": ("Whether to log and evaluate the first global_step or not.")},
     )
-    optim: Optional[str] = field(default="adamw_torch")
+    optim: Optional[str] = field(
+        default="adamw_torch"
+    )
+    scheduler_specific_kwargs: Optional[dict] = field(
+        default=None,
+        metadata={"help": ("Extra parameters for schedulers such as cosine with restarts. Mismatched scheduler types and scheduler parameters will cause the scheduler function to raise a TypeError.")},
+    )
 
 
 @dataclass

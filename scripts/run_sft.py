@@ -20,13 +20,14 @@ Supervised fine-tuning script for decoder language models.
 import logging
 import random
 import sys
+import os
 
 import datasets
 import torch
 import transformers
 from transformers import set_seed
 
-from alignment import (
+from src.alignment import (
     DataArguments,
     H4ArgumentParser,
     ModelArguments,
@@ -38,6 +39,7 @@ from alignment import (
     get_peft_config,
     get_quantization_config,
     get_tokenizer,
+    check_collator_and_pad_token
 )
 from trl import SFTTrainer
 
@@ -48,6 +50,9 @@ logger = logging.getLogger(__name__)
 def main():
     parser = H4ArgumentParser((ModelArguments, DataArguments, SFTConfig))
     model_args, data_args, training_args = parser.parse()
+    
+    # Set WANDB_PROJECT
+    os.environ['WANDB_PROJECT'] = data_args.wandb_project
 
     # Set seed for reproducibility
     set_seed(training_args.seed)
@@ -94,6 +99,9 @@ def main():
     # Load tokenizer
     ################
     tokenizer = get_tokenizer(model_args, data_args)
+    
+    # Verify that EOS token will not be removed from `labels` due to the data collator
+    check_collator_and_pad_token(tokenizer=tokenizer, packing=data_args.packing, force_pad_token=data_args.force_pad_token)
 
     #####################
     # Apply chat template
@@ -144,7 +152,7 @@ def main():
         dataset_text_field="text",
         max_seq_length=training_args.max_seq_length,
         tokenizer=tokenizer,
-        packing=True,
+        packing=control_args.packing,
         peft_config=get_peft_config(model_args),
     )
 

@@ -23,11 +23,15 @@ gradient_checkpointing_kwargs:
   use_reentrant: False
 hub_model_id: zephyr-7b-sft-full
 hub_strategy: every_save
+optim: adamw_torch
 learning_rate: 2.0e-05
 log_level: info
 logging_steps: 5  
 logging_strategy: steps
 lr_scheduler_type: cosine
+warmup_ratio: 0.1
+scheduler_specific_kwargs:
+- num_cycles: 0.5
 max_seq_length: 2048
 max_steps: -1
 num_train_epochs: 1
@@ -43,4 +47,3 @@ save_strategy: "steps"
 save_steps: 100
 save_total_limit: 1
 seed: 42
-warmup_ratio: 0.1
