@@ -27,7 +27,7 @@ import torch
 import transformers
 from transformers import set_seed
 
-from src.alignment import (
+from alignment import (
     DataArguments,
     H4ArgumentParser,
     ModelArguments,
