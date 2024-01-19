@@ -152,7 +152,7 @@ def main():
         dataset_text_field="text",
         max_seq_length=training_args.max_seq_length,
         tokenizer=tokenizer,
-        packing=control_args.packing,
+        packing=data_args.packing,
         peft_config=get_peft_config(model_args),
     )
 
