@@ -238,7 +238,7 @@ class SFTConfig(transformers.TrainingArguments):
     optim: Optional[str] = field(
         default="adamw_torch"
     )
-    scheduler_specific_kwargs: Optional[dict] = field(
+    lr_scheduler_kwargs: Optional[dict] = field(
         default=None,
         metadata={"help": ("Extra parameters for schedulers such as cosine with restarts. Mismatched scheduler types and scheduler parameters will cause the scheduler function to raise a TypeError.")},
     )
